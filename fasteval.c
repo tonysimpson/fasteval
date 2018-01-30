@@ -16,7 +16,8 @@ FastEval_EvalFrame(PyFrameObject *f, int throwflag)
     register uint64_t opc = 0;
     register uint64_t state = 0;
     PyObject **stack = f->f_stacktop;
-    uint64_t* opcode_ptr = (uint64_t*)PyBytes_AS_STRING(f->f_code->co_code);
+    uint64_t* base_opcode_ptr = (uint64_t*)PyBytes_AS_STRING(f->f_code->co_code);
+    uint64_t* opcode_ptr = base_opcode_ptr;
 
 #define NAME_ERROR_MSG \
         "name '%.200s' is not defined"
@@ -39,6 +40,7 @@ FastEval_EvalFrame(PyFrameObject *f, int throwflag)
                 } while(0)
 #define TP_Py_DECREF(obj) do {if(!should_inc_on_leave(obj)) Py_DECREF(without_tags(obj)); } while(0)
 #define EMPTY ((state & 3) == 0)
+#define PTR_TAG_BLOCK 0x4
 #include "opcode_targets.h"
 
     TARGET_NONE:
@@ -53,11 +55,10 @@ FastEval_EvalFrame(PyFrameObject *f, int throwflag)
         }
     TARGET_SETUP_LOOP:
         {
+            if(!EMPTY) {
+                s1 = (PyObject*)((uint64_t)s1 | PTR_TAG_BLOCK);
+            }
             DISPATCH;
-        }
-    TARGET_CALL_FUNCTION:
-        {
-
         }
     TARGET_LOAD_FAST:
         {
