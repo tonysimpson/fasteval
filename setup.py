@@ -7,7 +7,7 @@ from setuptools.extension import Extension
 
 # Building without nanoconfig
 cpy_extension = Extension('fasteval', sources=['fasteval.c'], 
-        extra_compile_args=["-O3"])
+        extra_compile_args=[])
 
 
 setup(

@@ -1,5 +1,4 @@
 table = ['&&_unknown_opcode'] * 256
-table[0] = '&&TARGET_NONE'
 code = open('fasteval.c').read()
 for line in open('../cpython/Include/opcode.h'):
     if line.startswith('#define '):
